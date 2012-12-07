@@ -1,6 +1,6 @@
 // TO DO
-// use SockJS client, wrap it as a component
 // use component event emitter
+// test in different browsers. 
 
 
 var DDPClient = function(options) {
@@ -92,10 +92,14 @@ DDPClient.prototype._nextId = function() {
 DDPClient.prototype._updateCollection = function(data) {
 	var self = this;
 
+// this needs some sort of callback or event, such that the client
+// can listen for collection changes, removals, etc. 
+
 	var name = data.collection, id = data.id; 
 
 	if (!self.collections[name])
 		self.collections[name] = {};
+
 	if (!self.collections[name][id])
 		self.collections[name][id] = {};
 
@@ -125,7 +129,8 @@ DDPClient.prototype.connect = function(callback){
 	if (callback)
 		self._callbacks.connected = callback; 
 
-	this.socket = new SockJS('http://localhost:3000/sockjs');
+	var options = {protocols_whitelist: ['xdr-polling', 'xhr-polling', 'iframe-xhr-polling', 'jsonp-polling'], debug: true};
+	this.socket = new SockJS('http://localhost:3000/sockjs', null, options);
 	self._prepareHandlers(); 
 	return this; 
 }
