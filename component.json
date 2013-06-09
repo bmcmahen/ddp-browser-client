@@ -1,0 +1,20 @@
+{
+  "name": "ddp-browser-client",
+  "repo": "bmcmahen/ddp-browser-client",
+  "description": "Connect to Meteor's server methods and subscriptions as defined by the DDP Protocol",
+  "version": "0.0.1",
+  "keywords": [
+    "ddp",
+    "meteor"
+  ],
+  "license": "MIT",
+  "scripts": [
+    "index.js"
+  ],
+  "dependencies": {
+    "component/emitter": "*",
+    "component/bind": "*",
+    "apily/guid": "*",
+    "component/each": "*"
+  }
+}

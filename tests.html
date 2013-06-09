@@ -3,37 +3,30 @@
 	<title></title>
 	<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 	<script src='http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js'></script>
-  <script src='ddp.js'></script>
+  <script src='build/build.js'></script>
 </head>
 <body>
 
 	<script>
+	var DDPClient = require('ddp-browser-client');
+	var socket = new DDPClient().connect(SockJS);
 
-		console.log('hey man')
-		socket = new DDPClient().connect(function(){
-			console.log('ready');
+	socket.on('connected', function(){
 
-			socket.call('foo', ['ben', 'mcmahen'], function(err, result) {
-		    console.log('called function, result: ' + result);
-		  });
+		socket.call('fullname', function(err, result) {
+	    console.log('called function, result: ' + result);
+	  });
 
+	  socket.call('bacon', 5, function(err, result){
+	  	console.log('calling bacon', result);
+	  });
 
-		  socket.subscribe('bar', [], function() {
-		  	console.log('bar complete');
-		  	console.log(socket.collections.bar);
-		  	var result = [];
-		  	for (var key in socket.collections.bar) {
-		  		if (socket.collections.bar.hasOwnProperty(key)) {
-		  			result.push(socket.collections.bar[key]);
-		  		}
-		  	}
-		  	console.log('RESULT', result);
+	  socket.apply('bacon', [5], function(err, result){
+	  	console.log('how many bacons?', result);
+	  });
 
-		  });
-  
-		});
+	});
 
-		
 
 	</script>
 

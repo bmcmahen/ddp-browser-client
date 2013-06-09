@@ -1,0 +1,17 @@
+{
+  "name": "guid",
+  "repo": "apily/guid",
+  "version": "0.0.1",
+  "description": "Simple prefixed unique id generator",
+  "keywords": [
+    "unique",
+    "id",
+    "generator"
+  ],
+  "scripts": [
+    "index.js"
+  ],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT"
+}
