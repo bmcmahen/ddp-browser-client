@@ -3,7 +3,7 @@ ddp-browser-client
 
 Use your socket of choice (native or SockJS) websockets to connect to Meteor publish functions and methods inside of a non-Meteor javascript app. It's also useful as a general means of managing your socket connections following the DDP Protocol.
 
-# Install
+## Install
 
 Use as a component:
 
@@ -11,41 +11,41 @@ Use as a component:
 
 Or use the standalone build located in the `standalone` folder, with the constructor available under the global `ddp`.
 
-# API
+## API
 
-## new DDP(socket);
+### new DDP(socket);
 
 Pass in a socket (native, SockJS) to the DDP constructor.
 
-## DDP.connect(fn)
+### DDP.connect(fn)
 
-## DDP.apply(name, [params], fn)
+### DDP.apply(name, [params], fn)
 
-## DDP.call(name, params, fn)
+### DDP.call(name, params, fn)
 
-## DDP.subscribe(name, params, fn)
+### DDP.subscribe(name, params, fn)
 
 Return an id of the subscription. Pass this to the unsubscribe method to unsubscribe.
 
-## DDP.unsubscribe(id)
+### DDP.unsubscribe(id)
 
-# Events
+## Events
 
-## ddp.on('connected', fn)
+### ddp.on('connected', fn)
 
-## ddp.on('added', fn(data))
+### ddp.on('added', fn(data))
 
 Document added to a collection
 
-## ddp.on('removed', fn(data))
+### ddp.on('removed', fn(data))
 
 Document removed from a collection
 
-## ddp.on('changed', fn(data))
+### ddp.on('changed', fn(data))
 
 Document changed in a collection
 
-# Example
+## Example
 
 		var DDP = require('bmcmahen-ddp-browser-client');
 		var sock = new SockJS('http://localhost:3000/sockjs');
