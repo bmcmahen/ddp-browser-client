@@ -4,17 +4,15 @@ var bind = require('bind')
   , each = require('each')
   , Emitter = require('emitter');
 
+// DDP Protocol:
+// https://github.com/meteor/meteor/blob/master/packages/livedata/DDP.md
 
 /////////////////////
 // DDP Constructor //
 /////////////////////
 
-var DDP = function(options){
-  options = (options || {});
-  this.host = options.host || 'localhost';
-  this.port = options.port || 3000;
-  this.path = options.path || 'sockjs';
-  this.collections = {};
+var DDP = function(socket){
+  this.socket = socket;
   this.callbacks = {};
 };
 
@@ -29,10 +27,8 @@ module.exports = DDP;
  * @return {DDP}
  */
 
-DDP.prototype.connect = function(Socket, fn){
+DDP.prototype.connect = function(fn){
   if (fn) this.callbacks.connected = fn;
-  var url = 'http://' + this.host + ':' + this.port + '/' + this.path;
-  this.socket = new Socket(url);
   this.bindSocketHandlers();
   return this;
 };
@@ -99,9 +95,11 @@ DDP.prototype.apply = function(name, params, fn){
  * @param  {string}   name   subscription name
  * @param  {array}   params
  * @param  {callback} fn
+ * @return {id} the id of the subscription.
  */
 
 DDP.prototype.subscribe = function(name, params, fn){
+  if (typeof params === 'function') fn = params;
   var id = guid();
   if (fn) this.callbacks[id] = fn;
   this.send({
@@ -109,6 +107,16 @@ DDP.prototype.subscribe = function(name, params, fn){
     id: id,
     name: name,
     params: params
+  });
+  return id;
+};
+
+// We need the ID provided to sub in order to unsubscribe
+// returned from subscribe method.
+DDP.prototype.unsubscribe = function(id){
+  this.send({
+    msg: 'unsub',
+    id: id
   });
 };
 
@@ -158,55 +166,36 @@ DDP.prototype.onMessage = function(e){
       }
       return;
 
+    // We need a better 'collection' hook, one so that we can use
+    // our own custom collections that emit events... and even
+    // our own custom models.
+
     // Document added to collection
+    //
+    // collection: string (collection name)
+    // id: string (document ID)
+    // fields: optional object with EJSON values
     case 'added':
-      if (data.collection){
-        name = data.collection;
-        id = data.id;
-
-        this.collections[name] = this.collections[name] || {};
-        this.collections[name][id] = this.collections[name][id] || {};
-
-        if (data.fields){
-          each(data.fields, function(val, key){
-            _this.collections[name][id][key] = value;
-          });
-        }
-      }
+      this.emit('added', data);
       return;
 
     // Document removed from collection
-    case 'removed':
-      if (data.collection){
-        name = data.collection;
-        id = data.id;
+    //
+    // collection: string (collection name)
+    // id: string (document ID)
 
-        if (!this.collections[name][id]) return;
-        delete this.collections[name][id];
-      }
+    case 'removed':
+      this.emit('removed', data);
       return;
 
     // Document changed in collection
+    //
+    // collection: string (collection name)
+    // id: string (document ID)
+    // fields: optional object with EJSON values
+    // cleared: optional array of strings (field names to delete)
     case 'changed':
-      if (data.collection){
-        name = data.collection;
-        id = data.id;
-
-        if (!this.collections[name]) return;
-        if (!this.collections[name][id]) return;
-
-        if (data.fields){
-          each(data.fields, function(val, key){
-            _this.collections[name][id][key] = value;
-          });
-        }
-
-        if (data.cleared){
-          each(data.cleared, function(val){
-            delete _this.collections[name][id][value];
-          });
-        }
-      }
+      this.emit('changed', data);
       return;
 
     // Subscription is ready

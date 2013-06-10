@@ -9,7 +9,12 @@
 
 	<script>
 	var DDPClient = require('ddp-browser-client');
-	var socket = new DDPClient().connect(SockJS);
+
+	var sock = new SockJS('http://localhost:3000/sockjs');
+
+	var socket = new DDPClient(sock).connect(function(){
+		console.log('connected');
+	});
 
 	socket.on('connected', function(){
 
@@ -25,6 +30,22 @@
 	  	console.log('how many bacons?', result);
 	  });
 
+	  socket.subscribe('bacons', function(){
+	  	console.log('bacon sub ready');
+	  });
+
+	});
+
+	socket.on('added', function(data){
+		console.log('added', data);
+	});
+
+	socket.on('removed', function(data){
+		console.log('removed', data);
+	});
+
+	socket.on('changed', function(data){
+		console.log('changed', data);
 	});
 
 
