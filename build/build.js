@@ -569,6 +569,8 @@ var bind = require('bind')
 /////////////////////
 
 var DDP = function(socket){
+  if (!(this instanceof DDP)) return new DDP(socket);
+  if (!socket) throw new TypeError('DDP() requires a socket.');
   this.socket = socket;
   this.callbacks = {};
 };
@@ -615,17 +617,13 @@ DDP.prototype.send = function(json){
  * Call a method on the server
  */
 
-DDP.prototype.call = function(){
-  var params = []
-    , name, fn;
+DDP.prototype.call = function(name){
+  var fn;
+  var args = Array.prototype.slice.call(arguments, 1);
+  if (args.length && typeof args[args.length - 1] === 'function')
+    fn = args.pop();
 
-  for (var i = 0; i < arguments.length; i++){
-    if (i === 0) name = arguments[i];
-    else if (i === arguments.length - 1) fn = arguments[i];
-    else params.push(arguments[i]);
-  }
-
-  this.apply(name, params, fn);
+  return this.apply(name, args, fn);
 };
 
 /**
@@ -721,6 +719,16 @@ DDP.prototype.onMessage = function(e){
         cb(data.error);
         delete this.callbacks[data.id];
       }
+      return;
+
+    // This isn't (currently) part of the DDP1 protocol, but
+    // I'm leaving it in for now. It's useful for when you want to
+    // send an entire snapshot of a collection. It's also useful if
+    // you don't want to constantly run a database diff (w/ snapshots)
+    // and simply want the client to sort out what is new, removed,
+    // or changed.
+    case 'data':
+      this.emit('data', data);
       return;
 
     // We need a better 'collection' hook, one so that we can use

@@ -10,7 +10,7 @@
 	<script>
 	var DDPClient = require('ddp-browser-client');
 
-	var sock = new SockJS('http://localhost:3000/sockjs');
+	var sock = new SockJS('http://192.168.0.194:3000/tv');
 
 	var socket = new DDPClient(sock).connect(function(){
 		console.log('connected');
@@ -18,21 +18,28 @@
 
 	socket.on('connected', function(){
 
-		socket.call('fullname', function(err, result) {
-	    console.log('called function, result: ' + result);
-	  });
+		// socket.call('fullname', function(err, result) {
+	 //    console.log('called function, result: ' + result);
+	 //  });
 
-	  socket.call('bacon', 5, function(err, result){
-	  	console.log('calling bacon', result);
-	  });
+		socket.call('listFs', '/home/pi', function(err, result){
+			console.log('fs result', result);
+		});
 
-	  socket.apply('bacon', [5], function(err, result){
-	  	console.log('how many bacons?', result);
-	  });
+		socket.call('buildLibrary', '/home/pi/movies', function(err, result){
+			console.log('library', result);
+		});
+	  // socket.call('bacon', 5, function(err, result){
+	  // 	console.log('calling bacon', result);
+	  // });
 
-	  socket.subscribe('bacons', function(){
-	  	console.log('bacon sub ready');
-	  });
+	  // socket.apply('bacon', [5], function(err, result){
+	  // 	console.log('how many bacons?', result);
+	  // });
+
+	  // socket.subscribe('bacons', function(){
+	  // 	console.log('bacon sub ready');
+	  // });
 
 	});
 
